@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Size Template</title>
+<style>
+    @page {
+        size: letter;
+        margin: 0;
+    }
+
+    html, body {
+        width: 8.5in;
+        height: 11in;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header{       
+        border-bottom: 1.8px solid #939393;
+        margin-bottom: 0.12in;
+    }
+    
+    .company {
+        padding: 0.3in 0.5in 0.05in; 
+        text-align: center;
+        border-bottom: 1.8px solid #939393;  
+    }
+
+    .company-info {
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        padding: 0.12in 0.3in; 
+        /* box-sizing: border-box; */
+    }
+
+    .info-line{
+        padding: 0.025in 0.6in;
+        display: flex;
+        font-size: 14px;
+        font-weight: 600;
+        justify-content: space-between;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+</style>
+</head>
+    <body>
+        <div class="header">
+            <div class="company">
+                <img src="dahna-logo.png" alt="Logo" style="width: 140px;margin: auto;">
+                <div class="company-info">
+                    accounts@dahnaenterpriseinc.com &emsp;
+                    <span style="font-size: 12px;">HST# 827986175RT0001</span>
+                </div>
+            </div>
+            <div class="info-line">
+                <span>Carrier Delivery Payment and Adjustment Statement</span>
+                <span>Two Weeks Ending: [[DATE]]</Span>
+            </div>   
+        </div>
+    </body>
+</html>
