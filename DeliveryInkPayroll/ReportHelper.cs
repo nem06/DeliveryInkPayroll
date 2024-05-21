@@ -248,6 +248,8 @@ namespace DeliveryInkPayroll
             process.WaitForExit();
             process.Close();
 
+            Console.WriteLine("Header PDF generated.");
+
             string inputReportBodyFilePath = "\"" + Path.Combine("Templates", "report-body-" + weekEnding + ".html") + "\"";
             string outputReportBodyFilePath = "\"" + Path.Combine("Templates", "report-body-" + weekEnding + ".pdf") + "\"";
 
@@ -258,7 +260,9 @@ namespace DeliveryInkPayroll
             process.WaitForExit();
             process.Close();
 
-            string finalReportPath = "\"" + Path.Combine(templateDirectoryPath, "Reports", "Billing Master Report " + weekEnding + ".pdf") + "\"";
+            Console.WriteLine("Report content PDF generated.");
+
+            string finalReportPath = "\"" + Path.Combine(templateDirectoryPath, weekEnding, "OutputFiles", "Billing Master Report " + weekEnding + ".pdf") + "\"";
 
             process.StartInfo.FileName = Path.Combine("exes", "mergepdf.exe");
             process.StartInfo.Arguments = outputHeaderFilePath + " " + outputReportBodyFilePath + " " + finalReportPath;

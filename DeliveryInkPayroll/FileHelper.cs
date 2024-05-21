@@ -82,7 +82,7 @@ namespace DeliveryInkPayroll
             List<SiteReport> otherTaskReports = new List<SiteReport>();
             Dictionary<string, List<SiteReport>> siteReport = new();
 
-            string fileName = Path.Combine(_configuration["TemplatePath"], "InputFiles", biWeekEnd.ToString("yyyy-MM-dd"), "SiteReport.CSV");
+            string fileName = Path.Combine(_configuration["TemplatePath"], biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles", "SiteReport.CSV");
 
             using (TextFieldParser parser = new(fileName))
             {
@@ -126,7 +126,7 @@ namespace DeliveryInkPayroll
         {
             List<Collection> collections = new List<Collection>();
 
-            string fileName = Path.Combine(_configuration["TemplatePath"], "InputFiles", biWeekEnd.ToString("yyyy-MM-dd"), "CollectionList.CSV");
+            string fileName = Path.Combine(_configuration["TemplatePath"], biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles", "CollectionList.CSV");
 
             if (File.Exists(fileName))
             {
@@ -159,7 +159,7 @@ namespace DeliveryInkPayroll
         {
             List<Tip> tips = new List<Tip>();
 
-            string fileName = Path.Combine(_configuration["TemplatePath"], "InputFiles", biWeekEnd.ToString("yyyy-MM-dd"), "Tips.CSV");
+            string fileName = Path.Combine(_configuration["TemplatePath"], biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles",  "Tips.CSV");
 
             if (File.Exists(fileName))
             {
@@ -168,7 +168,7 @@ namespace DeliveryInkPayroll
                 string[] ids = ["D46", "D47"];
                 foreach (string id in ids)
                 {
-                    string subssFile = Path.Combine(_configuration["TemplatePath"], "InputFiles", id + "-Subs.CSV");
+                    string subssFile = Path.Combine(_configuration["TemplatePath"], id + "-Subs.CSV");
 
                     using (TextFieldParser parser = new(subssFile))
                     {
