@@ -23,15 +23,40 @@ Console.WriteLine("Running payroll bi week ending "+biWeekEnd);
 DateTime endDate = Convert.ToDateTime(biWeekEnd);
 DateTime startDate = endDate.AddDays(-13);
 
+Dictionary<string, string> reportDateString = new();
+reportDateString["startDate"] = startDate.ToString("yyyy-MM-dd");
+reportDateString["endDate"] = endDate.ToString("yyyy-MM-dd");
 
-foreach (string route in routes)
+string weekEnding = endDate.ToString("yyyy-MM-dd");
+string weekEndingHeader = endDate.ToString("dddd, d-MMMM-yyyy");
+
+string dateJson = JsonSerializer.Serialize(reportDateString, new JsonSerializerOptions { WriteIndented = false });
+
+int dayCount = Convert.ToInt16(dbHelper.RunGetStoreProcedure("[dbo].[CheckDrawData]", dateJson));
+
+bool getDrawFiles = false;
+
+if(dayCount != 14)
+    getDrawFiles = true;
+else
 {
-    ftpConnect.DownloadFilesForSite(route, startDate, endDate);
-    List<RawDraw> rawDraws = fileHelper.GetRawDraw(route, startDate, endDate);
-    dbHelper.RunInsertStoreProcedure("[dbo].[InsertRawDrawData]", JsonSerializer.Serialize(rawDraws, new JsonSerializerOptions { WriteIndented = true }));
+    Console.Write("Draw data already exist in database. Insert again ? (Y/N) : ");
+    string userInput = Console.ReadLine();
+    if (userInput.ToLower() == "y")
+        getDrawFiles = true;
 }
 
-Console.WriteLine("Draw files fetched & inserted in Database");
+if (getDrawFiles)
+{
+    foreach (string route in routes)
+    {
+        ftpConnect.DownloadFilesForSite(route, startDate, endDate);
+        List<RawDraw> rawDraws = fileHelper.GetRawDraw(route, startDate, endDate);
+        dbHelper.RunInsertStoreProcedure("[dbo].[InsertRawDrawData]", JsonSerializer.Serialize(rawDraws, new JsonSerializerOptions { WriteIndented = true }));
+    }
+    Console.WriteLine("Draw files fetched & inserted in Database");
+
+}
 
 List<Collection> collections = fileHelper.GetCollections(endDate);
 dbHelper.RunInsertStoreProcedure("[dbo].[InsertCollections]", JsonSerializer.Serialize(collections, new JsonSerializerOptions { WriteIndented = true }));
@@ -59,19 +84,10 @@ foreach (SiteReport re in siteReport["other"])
 dbHelper.RunInsertStoreProcedure("[dbo].[InsertSiteReport]", JsonSerializer.Serialize(siteReport, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine("Site report inserted in Database");
 
-Dictionary<string, string> reportDateString = new();
-reportDateString["startDate"] = startDate.ToString("yyyy-MM-dd");
-reportDateString["endDate"] = endDate.ToString("yyyy-MM-dd");
-
-string dateJson = JsonSerializer.Serialize(reportDateString, new JsonSerializerOptions { WriteIndented = false });
-
 string reportContent = dbHelper.RunGetStoreProcedure("[dbo].[GetMasterReport]", dateJson);
 reportContent = reportContent.Replace("\\", "").Replace("\"[", "[").Replace("]\"", "]");
-File.WriteAllText(Path.Combine(config["TemplatePath"], "Reports", "JSONs", biWeekEnd + ".json"), reportContent);
+File.WriteAllText(Path.Combine(config["TemplatePath"], weekEnding, "OutputFiles", biWeekEnd + ".json"), reportContent);
 List<MasterReport> masterReport = JsonSerializer.Deserialize<List<MasterReport>>(reportContent);
-
-string weekEnding = endDate.ToString("yyyyMMdd");
-string weekEndingHeader = endDate.ToString("dddd, d-MMMM-yyyy");
 
 reportHelper.GenerateReportFile(masterReport, weekEnding);
 
