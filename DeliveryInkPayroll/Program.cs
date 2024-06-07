@@ -69,17 +69,29 @@ Console.WriteLine("Tips inserted in Database");
 
 List<Employee> employees = JsonSerializer.Deserialize<List<Employee>>(dbHelper.RunGetStoreProcedure("[dbo].[GetCurrentEmployee]", null));
 
-Dictionary<string, string> empIdMapping = new();
+//Dictionary<string, string> empIdMapping = new();
+//foreach (Employee employee in employees)
+//    empIdMapping[employee.Old_Id] = employee.EmployeeId;
+
+List<string> employeeList = new();
 foreach (Employee employee in employees)
-    empIdMapping[employee.Old_Id] = employee.EmployeeId;
+    employeeList.Add(employee.EmployeeId);
 
 Dictionary<string, List<SiteReport>> siteReport = fileHelper.GetSiteReports(endDate);
 
+//foreach (SiteReport re in siteReport["route"])
+//    re.EmployeeId = empIdMapping[re.EmployeeId];
+
+//foreach (SiteReport re in siteReport["other"])
+//    re.EmployeeId = empIdMapping[re.EmployeeId];
+
 foreach (SiteReport re in siteReport["route"])
-    re.EmployeeId = empIdMapping[re.EmployeeId];
+    if (!employeeList.Contains(re.EmployeeId))
+        throw new Exception(re.EmployeeId + " is not present in database.");
 
 foreach (SiteReport re in siteReport["other"])
-    re.EmployeeId = empIdMapping[re.EmployeeId];
+    if (!employeeList.Contains(re.EmployeeId))
+        throw new Exception(re.EmployeeId + " is not present in database.");
 
 dbHelper.RunInsertStoreProcedure("[dbo].[InsertSiteReport]", JsonSerializer.Serialize(siteReport, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine("Site report inserted in Database");
