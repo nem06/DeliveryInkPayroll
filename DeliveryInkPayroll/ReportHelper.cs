@@ -18,6 +18,8 @@ namespace DeliveryInkPayroll
         private string reportTemplate {  get; set; }
         private string employeeTemplate { get; set; }
         private string routeTableTemplate { get; set; }
+        private string routeTableProductHeader { get; set; }
+        private string routeTableProductTotal { get; set; }
         private string routeTableProductRowTemplate { get; set; }
         private string routeTableProductTotalTemplate { get; set; }
         private string routeTableAdjustmentTemplate { get; set; }
@@ -33,6 +35,8 @@ namespace DeliveryInkPayroll
             reportTemplate = File.ReadAllText(Path.Combine("Templates", "report-template.html"));
             employeeTemplate = File.ReadAllText(Path.Combine("Templates", "employee-template.html"));
             routeTableTemplate = File.ReadAllText(Path.Combine("Templates", "route-table-template.html"));
+            routeTableProductHeader = File.ReadAllText(Path.Combine("Templates", "route-table-product-header.html"));
+            routeTableProductTotal = File.ReadAllText(Path.Combine("Templates", "route-table-product-total.html"));
             routeTableProductRowTemplate = File.ReadAllText(Path.Combine("Templates", "route-table-product-row-template.html"));
             routeTableProductTotalTemplate = File.ReadAllText(Path.Combine("Templates", "route-table-product-total-template.html"));
             routeTableAdjustmentTemplate = File.ReadAllText(Path.Combine("Templates", "route-table-adjustment-template.html"));
@@ -57,44 +61,50 @@ namespace DeliveryInkPayroll
                         string routeData = routeTableTemplate;
                         routeData = routeTableTemplate.Replace("[[ROUTE]]", route.Route);
                         string productRows = "";
-                        foreach (Product1 product in route.Products)
+                        if(route.Products != null)
                         {
-                            string productRow = routeTableProductRowTemplate;
+                            routeData = routeData.Replace("[[THEAD-PRODUCT]]", routeTableProductHeader);
+                            routeData = routeData.Replace("[[TBODY-PRODUCT-TOTAL]]", routeTableProductTotal);
 
-                            productRow =productRow.Replace("[[PRODUCT]]", product.Product);
-                            foreach(Draw1 draw in product.Draws)
-                                productRow = productRow.Replace("[["+ draw.DayIndex.ToString() +"]]", draw.Draw.ToString());
+                            foreach (Product1 product in route.Products)
+                            {
+                                string productRow = routeTableProductRowTemplate;
 
-                            foreach(RouteDrawAmount routeDrawAmount in route.RouteDrawAmounts)
-                                if(routeDrawAmount.Product == product.Product)
-                                    if (routeDrawAmount.DayClass == "MF")
-                                        productRow = productRow.Replace("[[M-F_TOTAL]]", routeDrawAmount.TotalDraw.ToString())
-                                            .Replace("[[M-F_RATE]]", routeDrawAmount.Rate.ToString("F2"))
-                                            .Replace("[[M-F_AMOUNT]]", routeDrawAmount.Amount.ToString("F2"));
-                                    else if (routeDrawAmount.DayClass == "SAT")
-                                        productRow = productRow.Replace("[[SAT_TOTAL]]", routeDrawAmount.TotalDraw.ToString())
-                                            .Replace("[[SAT_RATE]]", routeDrawAmount.Rate.ToString("F2"))
-                                            .Replace("[[SAT_AMOUNT]]", routeDrawAmount.Amount.ToString("F2"));
-                                    else if (routeDrawAmount.DayClass == "SUN")
-                                        productRow = productRow.Replace("[[SUN_TOTAL]]", routeDrawAmount.TotalDraw.ToString())
-                                            .Replace("[[SUN_RATE]]", routeDrawAmount.Rate.ToString("F2"))
-                                            .Replace("[[SUN_AMOUNT]]", routeDrawAmount.Amount.ToString("F2"));
+                                productRow =productRow.Replace("[[PRODUCT]]", product.Product);
+                                foreach(Draw1 draw in product.Draws)
+                                    productRow = productRow.Replace("[["+ draw.DayIndex.ToString() +"]]", draw.Draw.ToString());
 
-                           
-                            productRows += productRow;
+                                foreach(RouteDrawAmount routeDrawAmount in route.RouteDrawAmounts)
+                                    if(routeDrawAmount.Product == product.Product)
+                                        if (routeDrawAmount.DayClass == "MF")
+                                            productRow = productRow.Replace("[[M-F_TOTAL]]", routeDrawAmount.TotalDraw.ToString())
+                                                .Replace("[[M-F_RATE]]", routeDrawAmount.Rate.ToString("F2"))
+                                                .Replace("[[M-F_AMOUNT]]", routeDrawAmount.Amount.ToString("F2"));
+                                        else if (routeDrawAmount.DayClass == "SAT")
+                                            productRow = productRow.Replace("[[SAT_TOTAL]]", routeDrawAmount.TotalDraw.ToString())
+                                                .Replace("[[SAT_RATE]]", routeDrawAmount.Rate.ToString("F2"))
+                                                .Replace("[[SAT_AMOUNT]]", routeDrawAmount.Amount.ToString("F2"));
+                                        else if (routeDrawAmount.DayClass == "SUN")
+                                            productRow = productRow.Replace("[[SUN_TOTAL]]", routeDrawAmount.TotalDraw.ToString())
+                                                .Replace("[[SUN_RATE]]", routeDrawAmount.Rate.ToString("F2"))
+                                                .Replace("[[SUN_AMOUNT]]", routeDrawAmount.Amount.ToString("F2"));
+
+
+                                productRows += productRow;
+                            }
+                            routeData = routeData.Replace("[[TBODY-PRODUCT]]", productRows);
+
+                            string dayClassTotalString = routeTableProductTotalTemplate;
+                            foreach (DayClassTotal dayClassTotal in route.DayClassTotal)
+                                if (dayClassTotal.DayClass == "MF")
+                                    dayClassTotalString = dayClassTotalString.Replace("[[M-F]]", dayClassTotal.Amount.ToString("F2"));
+                                else if (dayClassTotal.DayClass == "SAT")
+                                    dayClassTotalString = dayClassTotalString.Replace("[[SAT]]", dayClassTotal.Amount.ToString("F2"));
+                                else if (dayClassTotal.DayClass == "SUN")
+                                    dayClassTotalString = dayClassTotalString.Replace("[[SUN]]", dayClassTotal.Amount.ToString("F2"));
+
+                            routeData = routeData.Replace("[[TBODY-PRODUCT-TOTALS]]", dayClassTotalString);
                         }
-                        routeData = routeData.Replace("[[TBODY-PRODUCT]]", productRows);
-
-                        string dayClassTotalString = routeTableProductTotalTemplate;
-                        foreach (DayClassTotal dayClassTotal in route.DayClassTotal)
-                            if (dayClassTotal.DayClass == "MF")
-                                dayClassTotalString = dayClassTotalString.Replace("[[M-F]]", dayClassTotal.Amount.ToString("F2"));
-                            else if (dayClassTotal.DayClass == "SAT")
-                                dayClassTotalString = dayClassTotalString.Replace("[[SAT]]", dayClassTotal.Amount.ToString("F2"));
-                            else if (dayClassTotal.DayClass == "SUN")
-                                dayClassTotalString = dayClassTotalString.Replace("[[SUN]]", dayClassTotal.Amount.ToString("F2"));
-
-                        routeData = routeData.Replace("[[TBODY-PRODUCT-TOTALS]]", dayClassTotalString);
 
                         if(route.Adjustments != null)
                         {
