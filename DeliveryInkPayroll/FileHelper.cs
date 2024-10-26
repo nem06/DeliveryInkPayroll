@@ -76,13 +76,13 @@ namespace DeliveryInkPayroll
             return draws;
         }
 
-        public Dictionary<string, List<SiteReport>> GetSiteReports(DateTime biWeekEnd)
+        public Dictionary<string, List<SiteReport>> GetSiteReports(DateTime biWeekEnd, string year)
         {
             List<SiteReport> routeReports = new List<SiteReport>();
             List<SiteReport> otherTaskReports = new List<SiteReport>();
             Dictionary<string, List<SiteReport>> siteReport = new();
 
-            string fileName = Path.Combine(_configuration["TemplatePath"], biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles", "SiteReport.CSV");
+            string fileName = Path.Combine(_configuration["TemplatePath"], year, biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles", "SiteReport.CSV");
 
             using (TextFieldParser parser = new(fileName))
             {
@@ -122,11 +122,11 @@ namespace DeliveryInkPayroll
             return siteReport;
         }
 
-        public List<Collection> GetCollections(DateTime biWeekEnd)
+        public List<Collection> GetCollections(DateTime biWeekEnd, string year)
         {
             List<Collection> collections = new List<Collection>();
 
-            string fileName = Path.Combine(_configuration["TemplatePath"], biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles", "CollectionList.CSV");
+            string fileName = Path.Combine(_configuration["TemplatePath"], year, biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles", "CollectionList.CSV");
 
             if (File.Exists(fileName))
             {
@@ -155,11 +155,11 @@ namespace DeliveryInkPayroll
             return collections;
         }
 
-        public List<Tip> GetTips(DateTime biWeekEnd)
+        public List<Tip> GetTips(DateTime biWeekEnd, string year)
         {
             List<Tip> tips = new List<Tip>();
 
-            string fileName = Path.Combine(_configuration["TemplatePath"], biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles",  "Tips.CSV");
+            string fileName = Path.Combine(_configuration["TemplatePath"], year, biWeekEnd.ToString("yyyy-MM-dd"), "InputFiles",  "Tips.CSV");
 
             if (File.Exists(fileName))
             {

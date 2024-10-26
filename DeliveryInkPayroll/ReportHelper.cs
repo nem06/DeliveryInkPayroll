@@ -52,6 +52,7 @@ namespace DeliveryInkPayroll
             {
                 string employeeReport = employeeTemplate;
                 employeeReport = employeeReport.Replace("[[NAME]]", report.Name)
+                                    .Replace("[[EID]]", report.EmployeeID.Replace("D", "DEI"))
                                     .Replace("[[ROUTES]]", report.Routes);
 
                 string routeTablesString = "";
@@ -239,7 +240,7 @@ namespace DeliveryInkPayroll
 
         }
 
-        public void GenerateFinalPDF(string weekEnding, string weekEndingReportFormat)
+        public void GenerateFinalPDF(string weekEnding, string weekEndingReportFormat, string year)
         {
 
             headerTemplate = headerTemplate.Replace("[[DATE]]", weekEndingReportFormat);
@@ -272,9 +273,9 @@ namespace DeliveryInkPayroll
 
             Console.WriteLine("Report content PDF generated.");
 
-            string finalReportPath = "\"" + Path.Combine(templateDirectoryPath, weekEnding, "OutputFiles", "Billing Master Report " + weekEnding + ".pdf") + "\"";
+            string finalReportPath = "\"" + Path.Combine(templateDirectoryPath, year, weekEnding, "OutputFiles", "Billing Master Report " + weekEnding + ".pdf") + "\"";
 
-            process.StartInfo.FileName = Path.Combine("exes", "mergepdf.exe");
+            process.StartInfo.FileName = Path.Combine("exes", "mergeheaderfooter.exe");
             process.StartInfo.Arguments = outputHeaderFilePath + " " + outputReportBodyFilePath + " " + finalReportPath;
 
             process.Start();

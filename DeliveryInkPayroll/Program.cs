@@ -29,6 +29,7 @@ reportDateString["endDate"] = endDate.ToString("yyyy-MM-dd");
 
 string weekEnding = endDate.ToString("yyyy-MM-dd");
 string weekEndingHeader = endDate.ToString("dddd, d-MMMM-yyyy");
+string year = endDate.ToString("yyyy");
 
 string dateJson = JsonSerializer.Serialize(reportDateString, new JsonSerializerOptions { WriteIndented = false });
 
@@ -58,12 +59,12 @@ if (getDrawFiles)
 
 }
 
-List<Collection> collections = fileHelper.GetCollections(endDate);
+List<Collection> collections = fileHelper.GetCollections(endDate, year);
 dbHelper.RunInsertStoreProcedure("[dbo].[InsertCollections]", JsonSerializer.Serialize(collections, new JsonSerializerOptions { WriteIndented = true }));
 
 Console.WriteLine("Collections inserted in Database");
 
-List<Tip> tips = fileHelper.GetTips(endDate);
+List<Tip> tips = fileHelper.GetTips(endDate, year);
 dbHelper.RunInsertStoreProcedure("[dbo].[InsertTips]", JsonSerializer.Serialize(tips, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine("Tips inserted in Database");
 
@@ -77,7 +78,7 @@ List<string> employeeList = new();
 foreach (Employee employee in employees)
     employeeList.Add(employee.EmployeeId);
 
-Dictionary<string, List<SiteReport>> siteReport = fileHelper.GetSiteReports(endDate);
+Dictionary<string, List<SiteReport>> siteReport = fileHelper.GetSiteReports(endDate, year);
 
 //foreach (SiteReport re in siteReport["route"])
 //    re.EmployeeId = empIdMapping[re.EmployeeId];
@@ -98,14 +99,14 @@ Console.WriteLine("Site report inserted in Database");
 
 string reportContent = dbHelper.RunGetStoreProcedure("[dbo].[GetMasterReport]", dateJson);
 reportContent = reportContent.Replace("\\", "").Replace("\"[", "[").Replace("]\"", "]");
-File.WriteAllText(Path.Combine(config["TemplatePath"], weekEnding, "OutputFiles", biWeekEnd + ".json"), reportContent);
+File.WriteAllText(Path.Combine(config["TemplatePath"], year, weekEnding, "OutputFiles", biWeekEnd + ".json"), reportContent);
 List<MasterReport> masterReport = JsonSerializer.Deserialize<List<MasterReport>>(reportContent);
 
 reportHelper.GenerateReportFile(masterReport, weekEnding);
 
 Console.WriteLine("Report Content File Generated");
 
-reportHelper.GenerateFinalPDF(weekEnding, weekEndingHeader);
+reportHelper.GenerateFinalPDF(weekEnding, weekEndingHeader, year);
 
 Console.WriteLine("Final Report PDF Generated");
 

@@ -27,6 +27,9 @@
     <None Update="DahnaEnterpriseInc.mdf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="exes\mergeheaderfooter.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="exes\mergepdf.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -76,6 +79,7 @@
 
   <ItemGroup>
     <Folder Include="Database Scripts\" />
+    <Folder Include="pys\" />
     <Folder Include="Templates\" />
   </ItemGroup>
 
